@@ -124,7 +124,7 @@ fn test_remap_source_file() {
     at io.wzieba.r8fullmoderenamessources.Foobar.foo(Foobar.kt:10)
     at io.wzieba.r8fullmoderenamessources.MainActivity.onCreate$lambda$1$lambda$0(MainActivity.kt:14)
     at io.wzieba.r8fullmoderenamessources.MainActivity.$r8$lambda$pOQDVg57r6gG0-DzwbGf17BfNbs(MainActivity.kt:0)
-    at io.wzieba.r8fullmoderenamessources.MainActivity$$ExternalSyntheticLambda0.onClick(MainActivity:0)
+    at io.wzieba.r8fullmoderenamessources.MainActivity$$ExternalSyntheticLambda0.onClick(MainActivity.java:0)
 	at android.view.View.performClick(View.java:7659)
 	at android.view.View.performClickInternal(View.java:7636)
 	at android.view.View.-$$Nest$mperformClickInternal(Unknown Source:0)"#.trim(), test.unwrap().trim());

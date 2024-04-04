@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use std::fmt::{Error as FmtError, Write};
 use std::iter::FusedIterator;
+use std::ops::Add;
 
 use crate::mapping::{ProguardMapping, ProguardRecord};
 use crate::stacktrace::{self, StackFrame, StackTrace, Throwable};
@@ -90,7 +91,9 @@ fn iterate_with_lines<'a>(
         };
         let file = if let Some(file_name) = member.original_file {
             if file_name == "R8$$SyntheticClass" {
-                extract_class_name(member.original_class.unwrap_or(frame.class)).map(Cow::Borrowed)
+                extract_class_name(member.original_class.unwrap_or(frame.class))
+                    .map(Cow::Borrowed)
+                    .map(|class| class.add(".java"))
             } else {
                 member.original_file.map(Cow::Borrowed)
             }
