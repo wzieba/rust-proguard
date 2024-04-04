@@ -1,5 +1,6 @@
 //! A Parser for Java Stacktraces.
 
+use std::borrow::Cow;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
 /// A full Java StackTrace as printed by [`Throwable.printStackTrace()`].
@@ -156,7 +157,7 @@ pub struct StackFrame<'s> {
     pub(crate) class: &'s str,
     pub(crate) method: &'s str,
     pub(crate) line: usize,
-    pub(crate) file: Option<&'s str>,
+    pub(crate) file: Option<Cow<'s, str>>,
     pub(crate) parameters: Option<&'s str>,
 }
 
@@ -178,7 +179,7 @@ impl<'s> StackFrame<'s> {
             class,
             method,
             line,
-            file: Some(file),
+            file: Some(file.into()),
             parameters: None,
         }
     }
@@ -235,7 +236,7 @@ impl<'s> StackFrame<'s> {
 
     /// The file of the StackFrame.
     pub fn file(&self) -> Option<&str> {
-        self.file
+        self.file.as_deref()
     }
 
     /// The line of the StackFrame, 1-based.
@@ -256,7 +257,7 @@ impl<'s> Display for StackFrame<'s> {
             "at {}.{}({}:{})",
             self.class,
             self.method,
-            self.file.unwrap_or("<unknown>"),
+            self.file.clone().unwrap_or(Cow::from("<unknown>")).as_ref(),
             self.line
         )
     }
@@ -280,7 +281,7 @@ pub(crate) fn parse_frame(line: &str) -> Option<StackFrame> {
     Some(StackFrame {
         class,
         method,
-        file: Some(file),
+        file: Some(Cow::from(file)),
         line,
         parameters: None,
     })
@@ -388,7 +389,7 @@ mod tests {
                 class: "com.example.Util",
                 method: "show",
                 line: 5,
-                file: Some("Util.java"),
+                file: Some(Cow::from("Util.java")),
                 parameters: None,
             }],
             cause: Some(Box::new(StackTrace {
@@ -423,7 +424,7 @@ Caused by: com.example.Other: Invalid data
             class: "com.example.MainFragment",
             method: "onClick",
             line: 1,
-            file: Some("SourceFile"),
+            file: Some(Cow::from("SourceFile")),
             parameters: None,
         });
 
@@ -459,7 +460,7 @@ Caused by: com.example.Other: Invalid data
             class: "com.example.MainFragment",
             method: "onClick",
             line: 1,
-            file: Some("SourceFile"),
+            file: Some(Cow::from("SourceFile")),
             parameters: None,
         };
 

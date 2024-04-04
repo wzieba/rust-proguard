@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::fmt::{Error as FmtError, Write};
@@ -89,16 +90,16 @@ fn iterate_with_lines<'a>(
         };
         let file = if let Some(file_name) = member.original_file {
             if file_name == "R8$$SyntheticClass" {
-                extract_class_name(member.original_class.unwrap_or(frame.class))
+                extract_class_name(member.original_class.unwrap_or(frame.class)).map(Cow::Borrowed)
             } else {
-                member.original_file
+                member.original_file.map(Cow::Borrowed)
             }
         } else if member.original_class.is_some() {
             // when an inlined function is from a foreign class, we
             // don’t know the file it is defined in.
             None
         } else {
-            frame.file
+            frame.file.clone()
         };
         let class = match member.original_class {
             Some(class) => class,
@@ -503,6 +504,7 @@ fn format_cause(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::borrow::Cow;
 
     #[test]
     fn stacktrace() {
@@ -526,14 +528,14 @@ com.example.MainFragment$onActivityCreated$4 -> com.example.MainFragment$g:
                     class: "com.example.MainFragment$g",
                     method: "onClick",
                     line: 2,
-                    file: Some("SourceFile"),
+                    file: Some(Cow::from("SourceFile")),
                     parameters: None,
                 },
                 StackFrame {
                     class: "android.view.View",
                     method: "performClick",
                     line: 7393,
-                    file: Some("View.java"),
+                    file: Some(Cow::from("View.java")),
                     parameters: None,
                 },
             ],
@@ -546,7 +548,7 @@ com.example.MainFragment$onActivityCreated$4 -> com.example.MainFragment$g:
                     class: "com.example.MainFragment$g",
                     method: "onClick",
                     line: 1,
-                    file: Some("SourceFile"),
+                    file: Some(Cow::from("SourceFile")),
                     parameters: None,
                 }],
                 cause: None,
